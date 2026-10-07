@@ -1,13 +1,34 @@
 import React, { useState } from 'react'
+import api from '../../api'
 
 function AddCard(props) {
+
     const [WordName, setWordName] = useState('')
     const [Meaning, setMeaning] = useState('')
     const [ImageUrl, setImageUrl] = useState('')
 
+    const onSubmitingData = async (e) => {
+        e.preventDefault()
+        const data = {
+            word : WordName,
+            meaning : Meaning,
+            image_url : ImageUrl
+        }
+        try {
+            const response = await api.post('/vocab',data)
+            console.log(response.data)
+            setWordName('')
+            setMeaning('')
+            setImageUrl('')
+        } catch (error) {
+            console.log("this error is Occur :",error)
+        }
+    }
   return (
       <div>
-      <form className='absolute top-1/5 right-2/5 z-10 border-2 rounded-2xl border-white p-10 flex flex-col gap-3 items-center'>
+      <form onSubmit={ (e) => {
+              onSubmitingData(e)
+      } } className='absolute top-1/5 right-2/5 z-10 border-2 rounded-2xl border-white p-10 flex flex-col gap-3 items-center'>
         <h1 className='font-bold text-4xl'>Make a Flask Card </h1>
         <h1 className='text-2xl'> Word in Japanese</h1>
         <input onChange={(e) =>{

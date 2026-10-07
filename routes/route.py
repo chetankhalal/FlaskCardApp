@@ -15,5 +15,10 @@ async def get_data():
 
 @router.post("/vocab")
 async def add_words(nihonword : JapaneseWords):
-    collection_name.insert_one(dict(nihonword))
+    data = {
+        "word" : nihonword.word,
+        "meaning":nihonword.meaning,
+        "image_url":nihonword.image_url
+    }
+    collection_name.insert_one(data)
     return "add word"
