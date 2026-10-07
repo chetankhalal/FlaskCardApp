@@ -1,6 +1,12 @@
 from pymongo.mongo_client import MongoClient
+from dotenv import load_dotenv
+import os
 
-MONGODB_URI = "mongodb+srv://Admin_Chetan_FlashCard:Japanese_flashcard_chetan_1981@cluster0.njv5qee.mongodb.net/?appName=Cluster0"
+load_dotenv()
+mongodb_username = os.getenv('MONGODB_USERNAME')
+mongodb_password = os.getenv('MONGODB_PASSWORD')
+
+MONGODB_URI = f"mongodb+srv://{mongodb_username}:{mongodb_password}@cluster0.njv5qee.mongodb.net/?appName=Cluster0"
 
 mongodb_client = MongoClient(MONGODB_URI)
 
