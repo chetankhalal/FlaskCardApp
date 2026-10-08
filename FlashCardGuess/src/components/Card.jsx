@@ -4,13 +4,10 @@ function card(props) {
 
   const x = useMotionValue(0)
   const opacity = useTransform(x, [-150, 0, 150], [0, 1, 0])
-  const rotateRaw = useTransform(x, [-150, 150], [-18, 18])
+  const rotate = useTransform(x, [-150, 150], [-18, 18])
 
-  const isfront = props.id === props.Cards[0].id
-  const rotate = useTransform(() => {
-    const offset = isfront ? 0 : props.id % 2 ? 10 : -10
-    return `${rotateRaw.get() + offset}deg`
-  })
+  const isFront = props.identity === 0
+
 
   const HandleDragEnd = () => {
     if (Math.abs(x.get()) > 50) {
@@ -31,7 +28,7 @@ function card(props) {
         right: 0
       }}
       animate={{
-        scale: isfront ? 1.01 : 0.9
+        scale: isFront ? 1.1 : 0.8,
       }}
       onDragEnd={HandleDragEnd}
       style={{
@@ -39,15 +36,16 @@ function card(props) {
         gridColumn: 1,
         x,
         opacity,
-        rotate
-      }} 
+        rotate,
+        zIndex: 3 - props.identity
+      }}
       className='w-xs md:w-sm h-full  bg-blue-400 flex flex-col justify-center items-center p-10 rounded-2xl hover:cursor-grab active:cursor-grabbing'>
       <div className='border-2 md:w-60 md:h-60 rounded-2xl overflow-hidden'>
-        <img className='object-cover w-full h-full' src={props.image_url} alt="college" />
+        <img className='object-cover w-full h-full' src={props.image_url} alt={props.word} loading="lazy"
+          draggable={false} />
       </div>
-      <h1 className='my-5 font-bold text-2xl '> {props.Word} </h1>
-      <h1 className='my-5 font-bold text-xl '> {props.meaning} </h1>
-      <h1> hello </h1>
+      <h1 className='my-3 font-bold text-4xl '> {props.word} </h1>
+      <h1 className='my-3 font-bold text-xl '> {props.meaning} </h1>
     </motion.div>
   )
 }

@@ -7,7 +7,7 @@ const App = () => {
 
 
   return (
-    <div  className='bg-black'>
+    <div  className='bg-black h-screen'>
       <Routes>
         <Route path='/Vocab' element={<Vocab/>} />
       </Routes>

@@ -1,70 +1,144 @@
-import { useEffect, useState } from "react"
-import AddCard from "../components/AddCard"
-import Card from "../components/Card"
-import { ChevronLeft, ChevronRight, } from 'lucide-react'
-import api from '../../api'
-
+import { useEffect, useState } from "react";
+import AddCard from "../components/AddCard";
+import Card from "../components/Card";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import api from "../../api";
 
 function Vocab() {
-  
-  const [Cards, setCards] = useState([])
 
-  useEffect(() => {
-    const Get_data = async () => {
-      const response = await api.get('/vocab')
-      setCards(response.data)
+  const [Cards, setCards] = useState([]);
+  const [skip, setSkip] = useState(0);
+  const [loading, setLoading] = useState(false);
+
+  const Get_data = async (currentSkip) => {
+    try {
+      setLoading(true);
+
+      const response = await api.get("/vocab", {
+        params: {
+          skip: currentSkip,
+          limit: 10
+        }
+      });
+
+      setCards(prev => [...prev, ...response.data]);
+
+    } catch (error) {
+      console.error("Error fetching vocabulary:", error);
+    } finally {
+      setLoading(false);
     }
-    Get_data()
-  }, [])
+  };
+
+  // Load first 10
+  useEffect(() => {
+    Get_data(0);
+  }, []);
+
+  // Load next 10
+  const loadNext = () => {
+    const nextSkip = skip + 10;
+    setSkip(nextSkip)
+    Get_data(nextSkip);
+  };
+
+  const loadprev = () => {
+    if (skip > 0 ) {
+      const prev = skip - 10;
+      setSkip(prev)
+      Get_data(prev)
+    }
+  }
 
 
-
-  // const data = [
-  //   { id: 1, Word : "Watashi", meaning : "I or Me ", image_url: "https://images.alphacoders.com/932/thumb-1920-932313.jpg" },
-  //   { id: 2, Word: "kudashi", meaning: "I or Me ", image_url: "https://images.alphacoders.com/932/thumb-1920-932313.jpg" },
-  //   { id: 3, Word: "ogeri", meaning: "I or Me ", image_url: "https://images.alphacoders.com/932/thumb-1920-932313.jpg" },
-  //   { id: 4, Word: "yorusa ku da", meaning: "I or Me ", image_url: "https://images.alphacoders.com/932/thumb-1920-932313.jpg" },
-  // ]
-
-  const [ShowAddCard, setShowAddCard] = useState(false)
-  const [ShowArrowSignLeft, setShowArrowSignLeft] = useState(false)
-  const [ShowArrowSignRight, setShowArrowSignRight] = useState(false)
+  const [ShowAddCard, setShowAddCard] = useState(false);
 
 
   return (
-    <div className='text-white pt-10'>
-      <h1 className='md:text-7xl text-2xl text-white font-bold text-center mb-5'> Flash Card For Vocabary </h1>
-      <button className="bg-green-500 rounded-2xl p-3 font-bold cursor-pointer active:scale-95 hidden md:block absolute top-16 right-10" onClick={async () => {
-        setShowAddCard(true)
-      }}> Add Word </button>
+    <div className="text-white pt-10">
+
+      <h1 className="md:text-7xl text-2xl text-white font-bold text-center mb-5">
+        Flash Card For Vocabulary
+      </h1>
+
+      <button
+        className="bg-green-500 rounded-2xl p-3 font-bold cursor-pointer active:scale-95 hidden md:block absolute top-16 right-10"
+        onClick={() => setShowAddCard(true)}
+      >
+        Add Word
+      </button>
+
+
       <div className="grid grid-cols-3 gap-0">
-        <div className="hover:bg-gray-600 opacity-[0.4] hidden md:block" onMouseEnter={() => {
-          setShowArrowSignLeft(true)
-        }} onMouseLeave={() => {
-          setShowArrowSignLeft(false)
-        }}>
-          <div className="relative">{ShowArrowSignLeft && <ChevronLeft className="absolute right-0 top-30" size={200} strokeWidth={3} />}</div>
+
+        {/* LEFT */}
+        <div
+          className="hover:bg-gray-600 opacity-[0.4] hidden md:block"
+          onClick={loadprev}
+        >
+          <div>
+            {Cards.length === 0 && (
+              <ChevronLeft
+                className=" cursor-pointer"
+                size={200}
+                strokeWidth={3}
+              />
+            )}
+          </div>
         </div>
 
-        <div className='bg-white w-screen md:w-auto p-10 grid place-items-center'>
-          {
-            [...Cards].reverse().map((card) => {
-              return <Card key={card.id} Cards={Cards} setCards={setCards} {...card} />
-            })
+
+        {/* CARDS */}
+        <div className="bg-white w-screen md:w-auto p-10 grid place-items-center">
+
+          {[...Cards].slice(0,3).map((card , id ) => (
+            <Card
+              key={id}
+              identity = {id}
+              Cards={Cards}
+              setCards={setCards}
+              {...card}
+            />
+          ))}
+
+          { Cards.length === 0 && <div> <h1 className="text-2xl text-black font-normal"> if You have to continue then clik next Arrow</h1> </div>
           }
+
         </div>
 
-        <div className="hover:bg-gray-600 opacity-[0.4] hidden md:block" onMouseEnter={() => {
-          setShowArrowSignRight(true)
-        }} onMouseLeave={() => {
-          setShowArrowSignRight(false)
-        }}>
-          <div className="relative">{ShowArrowSignRight && <ChevronRight className="absolute left-0 top-30" size={200} strokeWidth={3} />}</div>
+
+        {/* RIGHT */}
+        <div
+          className="hover:bg-gray-600 opacity-[0.4] hidden md:block"
+          onClick={loadNext}
+        >
+          <div>
+            {Cards.length === 0 && skip > 0 && (
+              <ChevronRight
+                className=" cursor-pointer"
+                size={200}
+                strokeWidth={3}
+              />
+            )}
+          </div>
         </div>
+
       </div>
-      {ShowAddCard && <AddCard setShowAddCard={setShowAddCard} />}
+
+
+      {loading && (
+        <p className="text-center text-black">
+          Loading...
+        </p>
+      )}
+
+
+      {ShowAddCard && (
+        <AddCard setShowAddCard={setShowAddCard} />
+      )}
+
     </div>
-  )
+  );
 }
 
-export default Vocab
+export default Vocab;

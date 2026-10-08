@@ -9,8 +9,8 @@ from bson import ObjectId
 router = APIRouter()
 
 @router.get("/vocab")
-async def get_data():
-    data = serial_list(collection_name.find())
+async def get_data(skip: int = 0, limit: int = 10):
+    data = serial_list(collection_name.find().skip(skip).limit(limit))
     return data
 
 @router.post("/vocab")
